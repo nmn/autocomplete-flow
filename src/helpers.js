@@ -26,6 +26,7 @@ export function promisedExec(cmdString: string, args: Array<string>, options: Ob
       } else if(!data || errors){
         reject(errors)
       } else {
+        console.log(data)
         data = JSON.parse(data.substr(data.indexOf('{')))
         resolve(data)
       }
