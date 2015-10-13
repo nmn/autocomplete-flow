@@ -49,12 +49,11 @@ module.exports =
 
             console.log(file, line, col)
 
-            options.stdin = insertAutocompleteToken(currentContents, line, col)
             const [cwd] = atom.project.relativizePath(file)
             options.cwd = cwd
 
             try {
-              var result = await promisedExec(cmdString, args, options, currentContents)
+              var result = await promisedExec(cmdString, args, options, insertAutocompleteToken(currentContents, line, col))
               if (!result) {
                 return []
               }
@@ -63,8 +62,8 @@ module.exports =
               // from eating leading dots).
               var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
               var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
-              return candidates.filter()
-              return filter(candidates, replacementPrefix, { key: 'displayText' })
+              return candidates
+              // return filter(candidates, replacementPrefix, { key: 'displayText' })
             } catch (_) {
               return []
             }

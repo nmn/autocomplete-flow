@@ -60,45 +60,44 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
 
               console.log(file, line, col);
 
-              options.stdin = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
               _atom$project$relativizePath = atom.project.relativizePath(file);
               _atom$project$relativizePath2 = _slicedToArray(_atom$project$relativizePath, 1);
               cwd = _atom$project$relativizePath2[0];
 
               options.cwd = cwd;
 
-              context$2$0.prev = 13;
-              context$2$0.next = 16;
-              return regeneratorRuntime.awrap((0, _helpers.promisedExec)(cmdString, args, options, currentContents));
+              context$2$0.prev = 12;
+              context$2$0.next = 15;
+              return regeneratorRuntime.awrap((0, _helpers.promisedExec)(cmdString, args, options, (0, _helpers.insertAutocompleteToken)(currentContents, line, col)));
 
-            case 16:
+            case 15:
               result = context$2$0.sent;
 
               if (result) {
-                context$2$0.next = 19;
+                context$2$0.next = 18;
                 break;
               }
 
               return context$2$0.abrupt('return', []);
 
-            case 19:
+            case 18:
               json = JSON.parse(result.stdout);
               replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix;
               candidates = json.map(function (item) {
                 return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
               });
-              return context$2$0.abrupt('return', candidates.filter());
+              return context$2$0.abrupt('return', candidates);
 
-            case 26:
-              context$2$0.prev = 26;
-              context$2$0.t0 = context$2$0['catch'](13);
+            case 24:
+              context$2$0.prev = 24;
+              context$2$0.t0 = context$2$0['catch'](12);
               return context$2$0.abrupt('return', []);
 
-            case 29:
+            case 27:
             case 'end':
               return context$2$0.stop();
           }
-        }, null, this, [[13, 26]]);
+        }, null, this, [[12, 24]]);
       }
     };
 
@@ -113,3 +112,5 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
 
 // If it is just whitespace and punctuation, ignore it (this keeps us
 // from eating leading dots).
+
+// return filter(candidates, replacementPrefix, { key: 'displayText' })
