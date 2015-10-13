@@ -6,3 +6,9 @@ export function insertAutocompleteToken(contents: string, line: number, col: num
   lines[line] = theLine
   return lines.join('\n')
 }
+
+export function promisedExec(cmdString: string, args: Array<string>, options: Object, file: string): Promise<Object> {
+  return new Promise(function(resolve, reject){
+
+  })
+}

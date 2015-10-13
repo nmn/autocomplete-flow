@@ -8,9 +8,9 @@ import {insertAutocompleteToken} from './helpers'
 import type {AutocompleteProvider} from './types'
 // import {CompositeDisposable} from 'atom'
 // import {allowUnsafeNewFunction} from 'loophole'
-const linterPackage: boolean = atom.packages.getLoadedPackage('linter')
-if(!linterPackage){
-  atom.notifications.addError('Linter should be installed first, `apm install linter`', {dismissable: true}) // eslint-disable-line
+const autocompletePackage: boolean = atom.packages.getLoadedPackage('autocomplete-plus')
+if(!autocompletePackage){
+  atom.notifications.addError('autocomplete-plus should be installed first, `apm install autocomplete-plus`', {dismissable: true}) // eslint-disable-line
 }
 
 // const linterPath = linterPackage.path
@@ -41,7 +41,7 @@ module.exports =
         , disableForSelector: '.source.js .comment, source.js .keyword'
         , inclusionPriority: 1
         , excludeLowerPriority: true
-        , async getSuggestions({editor, bufferPosition, prefix}){
+        , getSuggestions({editor, bufferPosition, prefix}){
             // return [{text: 'yo'}]
             // file: filePath
             // currentContents: fileContents

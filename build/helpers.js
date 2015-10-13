@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 exports.insertAutocompleteToken = insertAutocompleteToken;
+exports.promisedExec = promisedExec;
 
 function insertAutocompleteToken(contents, line, col) {
   var lines = contents.split('\n');
@@ -11,4 +12,8 @@ function insertAutocompleteToken(contents, line, col) {
   theLine = theLine.substring(0, col) + 'AUTO332' + theLine.substring(col);
   lines[line] = theLine;
   return lines.join('\n');
+}
+
+function promisedExec(cmdString, args, options, file) {
+  return new Promise(function (resolve, reject) {});
 }

@@ -18,9 +18,9 @@ var _child_process = require('child_process');
 
 var _helpers = require('./helpers');
 
-var linterPackage = atom.packages.getLoadedPackage('linter');
-if (!linterPackage) {
-  atom.notifications.addError('Linter should be installed first, `apm install linter`', { dismissable: true }); // eslint-disable-line
+var autocompletePackage = atom.packages.getLoadedPackage('autocomplete-plus');
+if (!autocompletePackage) {
+  atom.notifications.addError('autocomplete-plus should be installed first, `apm install autocomplete-plus`', { dismissable: true }); // eslint-disable-line
 }
 
 // const linterPath = linterPackage.path
@@ -50,54 +50,46 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
         var editor = _ref.editor;
         var bufferPosition = _ref.bufferPosition;
         var prefix = _ref.prefix;
-        var file, currentContents, cursor, line, col, options, args;
-        return regeneratorRuntime.async(function getSuggestions$(context$2$0) {
-          while (1) switch (context$2$0.prev = context$2$0.next) {
-            case 0:
-              file = editor.getPath();
-              currentContents = editor.getText();
-              cursor = editor.getLastCursor();
-              line = cursor.getBufferRow();
-              col = cursor.getBufferColumn();
-              options = {};
-              args = ['autocomplete', '--json', file];
 
-              console.log(file, line, col);
+        // return [{text: 'yo'}]
+        // file: filePath
+        // currentContents: fileContents
+        // line: number, column: number
 
-              options.stdin = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
-              return context$2$0.abrupt('return', []);
+        var file = editor.getPath();
+        var currentContents = editor.getText();
+        var cursor = editor.getLastCursor();
+        var line = cursor.getBufferRow();
+        var col = cursor.getBufferColumn();
 
-            case 10:
-            case 'end':
-              return context$2$0.stop();
-          }
-        }, null, this);
+        var options = {};
+        var args = ['autocomplete', '--json', file];
+
+        console.log(file, line, col);
+
+        options.stdin = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
+        return [];
+        // try {
+        //   var result = await promisedExec(cmdString, args, options, file)
+        //   if (!result) {
+        //     return []
+        //   }
+        //   if (result.exitCode === 0) {
+        //     var json = JSON.parse(result.stdout)
+        //     // If it is just whitespace and punctuation, ignore it (this keeps us
+        //     // from eating leading dots).
+        //     var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
+        //     var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
+        //     return filter(candidates, replacementPrefix, { key: 'displayText' })
+        //   } else {
+        //     return []
+        //   }
+        // } catch (_) {
+        //   return []
+        // }
       }
     };
 
-    // try {
-    //   var result = await promisedExec(cmdString, args, options, file)
-    //   if (!result) {
-    //     return []
-    //   }
-    //   if (result.exitCode === 0) {
-    //     var json = JSON.parse(result.stdout)
-    //     // If it is just whitespace and punctuation, ignore it (this keeps us
-    //     // from eating leading dots).
-    //     var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
-    //     var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
-    //     return filter(candidates, replacementPrefix, { key: 'displayText' })
-    //   } else {
-    //     return []
-    //   }
-    // } catch (_) {
-    //   return []
-    // }
     return provider;
   }
 };
-
-// return [{text: 'yo'}]
-// file: filePath
-// currentContents: fileContents
-// line: number, column: number
