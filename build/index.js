@@ -10,9 +10,7 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
-var _atom = require('atom');
-
-var _atom2 = _interopRequireDefault(_atom);
+// import atom from 'atom'
 
 var _child_process = require('child_process');
 
@@ -30,7 +28,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
     console.log('activating autocomplete-flow');
 
     // getting custom value
-    cmdString = _atom2['default'].config.get('autocomplete-flow.pathToFlowExecutable') || 'flow';
+    cmdString = atom.config.get('autocomplete-flow.pathToFlowExecutable') || 'flow';
   },
   deactivate: function deactivate() {
     console.log('deactivating autocomplete-flow');
@@ -61,7 +59,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
               console.log(file, line, col);
 
               options.stdin = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
-              _atom$project$relativizePath = _atom2['default'].project.relativizePath(file);
+              _atom$project$relativizePath = atom.project.relativizePath(file);
               _atom$project$relativizePath2 = _slicedToArray(_atom$project$relativizePath, 1);
               cwd = _atom$project$relativizePath2[0];
 

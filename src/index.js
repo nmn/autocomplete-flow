@@ -1,7 +1,7 @@
 /* @flow */
 /* global atom */
 import path from 'path'
-import atom from 'atom'
+// import atom from 'atom'
 import {spawn} from 'child_process'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
 import {filter} from 'fuzzaldrin'
