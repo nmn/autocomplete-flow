@@ -37,6 +37,7 @@
     "eslint": "^1.6.0"
   },
   "dependencies": {
-    "fuzzaldrin": "^2.1.0"
+    "fuzzaldrin": "^2.1.0",
+    "regenerator": "^0.8.41"
   }
 }
