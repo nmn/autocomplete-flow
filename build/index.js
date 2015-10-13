@@ -45,7 +45,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
         var bufferPosition = _ref.bufferPosition;
         var prefix = _ref.prefix;
 
-        var file, currentContents, cursor, line, col, options, args, _atom$project$relativizePath, _atom$project$relativizePath2, cwd, result, json, replacementPrefix, candidates;
+        var file, currentContents, cursor, line, col, options, args, _atom$project$relativizePath, _atom$project$relativizePath2, cwd, result, replacementPrefix, candidates;
 
         return regeneratorRuntime.async(function getSuggestions$(context$2$0) {
           while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -73,7 +73,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
             case 15:
               result = context$2$0.sent;
 
-              if (result) {
+              if (!(!result || !result.length)) {
                 context$2$0.next = 18;
                 break;
               }
@@ -81,23 +81,22 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
               return context$2$0.abrupt('return', []);
 
             case 18:
-              json = JSON.parse(result.stdout);
               replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix;
-              candidates = json.map(function (item) {
+              candidates = result.map(function (item) {
                 return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
               });
               return context$2$0.abrupt('return', candidates);
 
-            case 24:
-              context$2$0.prev = 24;
+            case 23:
+              context$2$0.prev = 23;
               context$2$0.t0 = context$2$0['catch'](12);
               return context$2$0.abrupt('return', []);
 
-            case 27:
+            case 26:
             case 'end':
               return context$2$0.stop();
           }
-        }, null, this, [[12, 24]]);
+        }, null, this, [[12, 23]]);
       }
     };
 

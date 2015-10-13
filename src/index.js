@@ -54,14 +54,13 @@ module.exports =
 
             try {
               var result = await promisedExec(cmdString, args, options, insertAutocompleteToken(currentContents, line, col))
-              if (!result) {
+              if (!result || !result.length) {
                 return []
               }
-              var json = JSON.parse(result.stdout)
               // If it is just whitespace and punctuation, ignore it (this keeps us
               // from eating leading dots).
               var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
-              var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
+              var candidates = result.map(item => processAutocompleteItem(replacementPrefix, item))
               return candidates
               // return filter(candidates, replacementPrefix, { key: 'displayText' })
             } catch (_) {

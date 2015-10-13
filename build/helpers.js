@@ -38,8 +38,7 @@ function promisedExec(cmdString, args, options, file) {
       } else if (!data || errors) {
         reject(errors);
       } else {
-        console.log(data);
-        data = JSON.parse(data.substr(data.indexOf('{')));
+        data = JSON.parse(data.substr(data));
         resolve(data);
       }
     });
