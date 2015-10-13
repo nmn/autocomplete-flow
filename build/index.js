@@ -21,7 +21,6 @@ var _helpers = require('./helpers');
 var _fuzzaldrin = require('fuzzaldrin');
 
 var cmdString = 'flow';
-cmd;
 
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
       'default': 'flow'

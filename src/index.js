@@ -9,7 +9,6 @@ import {filter} from 'fuzzaldrin'
 import type {AutocompleteProvider} from './types'
 
 let cmdString = 'flow'
-cmd
 
 module.exports =
   { config:
