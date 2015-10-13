@@ -4,6 +4,7 @@
 import path from 'path'
 // import {sync} from 'resolve'
 import {spawn} from 'child_process'
+import {insertAutocompleteToken} from './helpers'
 import type {AutocompleteProvider} from './types'
 // import {CompositeDisposable} from 'atom'
 // import {allowUnsafeNewFunction} from 'loophole'
@@ -17,39 +18,6 @@ if(!linterPackage){
 
 let cmdString = 'flow'
 
-function extractRange(message){
-  return [ [message.line - 1, message.start - 1]
-         , [message.endline - 1, message.end]
-         ]
-}
-
-function flowMessageToTrace(message){
-  return { type: 'Trace'
-         , text: message.descr
-         , filePath: message.path
-         , range: extractRange(message)
-         }
-}
-
-function flowMessageToLinterMessage(arr) {
-  // h/t Nuclide-flow
-  // It's unclear why the 1-based to 0-based indexing works the way that it
-  // does, but this has the desired effect in the UI, in practice.
-  var message = Array.isArray(arr) ? arr[0] : arr
-
-  var obj: Object =
-    { type: message.level
-    , text: Array.isArray(arr) ? arr.map(o => o.descr).join(' ') : message.descr
-    , filePath: message.path
-    , range: extractRange(message)
-    }
-
-  if(Array.isArray(arr) && arr.length > 1){
-    obj.trace = arr.slice(1).map(flowMessageToTrace)
-  }
-
-  return obj
-}
 
 module.exports =
   { config:
@@ -67,14 +35,49 @@ module.exports =
   , deactivate(){
       console.log('deactivating linter-flow')
     }
-  , provideLinter(): AutocompleteProvider {
+  , getCompletionProvider(): AutocompleteProvider {
       const provider =
         { selector: '.source.js, .source.js.jsx, .source.jsx'
         , disableForSelector: '.source.js .comment, source.js .keyword'
         , inclusionPriority: 1
         , excludeLowerPriority: true
-        , getSuggestions({editor, bufferPosition, prefix}){
-            return [{text: 'yo'}]
+        , async getSuggestions({editor, bufferPosition, prefix}){
+            // return [{text: 'yo'}]
+            // file: filePath
+            // currentContents: fileContents
+            // line: number, column: number
+
+            const file = editor.getPath()
+            const currentContents = editor.getText()
+            const cursor = editor.getLastCursor()
+            const line = cursor.getBufferRow()
+            const col = cursor.getBufferColumn()
+
+            let options = {}
+            const args = ['autocomplete', '--json', file]
+
+            console.log(file, line, col)
+
+            options.stdin = insertAutocompleteToken(currentContents, line, col)
+            return []
+            // try {
+            //   var result = await promisedExec(cmdString, args, options, file)
+            //   if (!result) {
+            //     return []
+            //   }
+            //   if (result.exitCode === 0) {
+            //     var json = JSON.parse(result.stdout)
+            //     // If it is just whitespace and punctuation, ignore it (this keeps us
+            //     // from eating leading dots).
+            //     var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
+            //     var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
+            //     return filter(candidates, replacementPrefix, { key: 'displayText' })
+            //   } else {
+            //     return []
+            //   }
+            // } catch (_) {
+            //   return []
+            // }
           }
         }
 

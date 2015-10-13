@@ -1,5 +1,9 @@
+
 /* global atom */
 // import fs from 'fs'
+
+// import {CompositeDisposable} from 'atom'
+// import {allowUnsafeNewFunction} from 'loophole'
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -12,8 +16,7 @@ var _path2 = _interopRequireDefault(_path);
 
 var _child_process = require('child_process');
 
-// import {CompositeDisposable} from 'atom'
-// import {allowUnsafeNewFunction} from 'loophole'
+var _helpers = require('./helpers');
 
 var linterPackage = atom.packages.getLoadedPackage('linter');
 if (!linterPackage) {
@@ -25,44 +28,8 @@ if (!linterPackage) {
 
 var cmdString = 'flow';
 
-function extractRange(message) {
-  return [[message.line - 1, message.start - 1], [message.endline - 1, message.end]];
-}
-
-function flowMessageToTrace(message) {
-  return { type: 'Trace',
-    text: message.descr,
-    filePath: message.path,
-    range: extractRange(message)
-  };
-}
-
-function flowMessageToLinterMessage(arr) {
-  // h/t Nuclide-flow
-  // It's unclear why the 1-based to 0-based indexing works the way that it
-  // does, but this has the desired effect in the UI, in practice.
-  var message = Array.isArray(arr) ? arr[0] : arr;
-
-  var obj = { type: message.level,
-    text: Array.isArray(arr) ? arr.map(function (o) {
-      return o.descr;
-    }).join(' ') : message.descr,
-    filePath: message.path,
-    range: extractRange(message)
-  };
-
-  if (Array.isArray(arr) && arr.length > 1) {
-    obj.trace = arr.slice(1).map(flowMessageToTrace);
-  }
-
-  return obj;
-}
-
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
       'default': 'flow'
-    },
-    testRuleTwo: { type: 'boolean',
-      'default': false
     }
   },
   activate: function activate() {
@@ -74,60 +41,63 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
   deactivate: function deactivate() {
     console.log('deactivating linter-flow');
   },
-  provideLinter: function provideLinter() {
-    var provider = { grammarScopes: ['source.js', 'source.js.jsx', 'source.babel', 'source.js-semantic', 'source.es6'],
-      scope: 'file',
-      lintOnFly: true,
-      lint: function lint(TextEditor) {
-        var filePath = TextEditor.getPath();
-        var fileText = TextEditor.buffer && TextEditor.buffer.cachedText;
+  getCompletionProvider: function getCompletionProvider() {
+    var provider = { selector: '.source.js, .source.js.jsx, .source.jsx',
+      disableForSelector: '.source.js .comment, source.js .keyword',
+      inclusionPriority: 1,
+      excludeLowerPriority: true,
+      getSuggestions: function getSuggestions(_ref) {
+        var editor = _ref.editor;
+        var bufferPosition = _ref.bufferPosition;
+        var prefix = _ref.prefix;
+        var file, currentContents, cursor, line, col, options, args;
+        return regeneratorRuntime.async(function getSuggestions$(context$2$0) {
+          while (1) switch (context$2$0.prev = context$2$0.next) {
+            case 0:
+              file = editor.getPath();
+              currentContents = editor.getText();
+              cursor = editor.getLastCursor();
+              line = cursor.getBufferRow();
+              col = cursor.getBufferColumn();
+              options = {};
+              args = ['autocomplete', '--json', file];
 
-        if (fileText.indexOf('@flow') === -1) {
-          return [];
-        }
+              console.log(file, line, col);
 
-        return new Promise(function (resolve, reject) {
-          var command = (0, _child_process.spawn)(cmdString, ['check-contents', filePath, '--json', '--timeout', '1'], { cwd: _path2['default'].dirname(filePath) });
-          var data = '',
-              errors = '';
-          command.stdout.on('data', function (d) {
-            data += d;
-          });
-          command.stderr.on('data', function (d) {
-            errors += d;
-          });
-          command.on('close', function (err) {
-            if (err) {
-              reject(errors);
-            } else if (!data || errors) {
-              resolve([]);
-            } else {
-              data = JSON.parse(data.substr(data.indexOf('{')));
-              if (!data.errors || data.passed) {
-                resolve([]);
-              } else {
-                var errs = data.errors.map(function (obj) {
-                  return obj.message;
-                }).map(flowMessageToLinterMessage);
-                console.log(errs);
-                resolve(errs);
-              }
-            }
-          });
+              options.stdin = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
+              return context$2$0.abrupt('return', []);
 
-          command.stdin.write(fileText);
-          command.stdin.end();
-        })['catch'](function (err) {
-          console.error(err);
-          return [{ type: 'warning',
-            html: 'linter-flow : Error Linting, check the console for details',
-            filePath: filePath,
-            range: [[0, 0], [0, 1]]
-          }];
-        });
+            case 10:
+            case 'end':
+              return context$2$0.stop();
+          }
+        }, null, this);
       }
     };
 
+    // try {
+    //   var result = await promisedExec(cmdString, args, options, file)
+    //   if (!result) {
+    //     return []
+    //   }
+    //   if (result.exitCode === 0) {
+    //     var json = JSON.parse(result.stdout)
+    //     // If it is just whitespace and punctuation, ignore it (this keeps us
+    //     // from eating leading dots).
+    //     var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
+    //     var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
+    //     return filter(candidates, replacementPrefix, { key: 'displayText' })
+    //   } else {
+    //     return []
+    //   }
+    // } catch (_) {
+    //   return []
+    // }
     return provider;
   }
 };
+
+// return [{text: 'yo'}]
+// file: filePath
+// currentContents: fileContents
+// line: number, column: number
