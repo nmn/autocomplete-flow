@@ -1,23 +1,13 @@
 /* @flow */
 /* global atom */
-// import fs from 'fs'
 import path from 'path'
-// import {sync} from 'resolve'
+import atom from 'atom'
 import {spawn} from 'child_process'
-import {insertAutocompleteToken} from './helpers'
+import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
+import {filter} from 'fuzzaldrin'
 import type {AutocompleteProvider} from './types'
-// import {CompositeDisposable} from 'atom'
-// import {allowUnsafeNewFunction} from 'loophole'
-const autocompletePackage: boolean = atom.packages.getLoadedPackage('autocomplete-plus')
-if(!autocompletePackage){
-  atom.notifications.addError('autocomplete-plus should be installed first, `apm install autocomplete-plus`', {dismissable: true}) // eslint-disable-line
-}
-
-// const linterPath = linterPackage.path
-// const findFile = require(`${linterPath}/lib/util`)
 
 let cmdString = 'flow'
-
 
 module.exports =
   { config:
@@ -27,13 +17,13 @@ module.exports =
           }
       }
   , activate(){
-      console.log('activating linter-flow')
+      console.log('activating autocomplete-flow')
 
       // getting custom value
-      cmdString = atom.config.get('linter-flow.pathToFlowExecutable') || 'flow'
+      cmdString = atom.config.get('autocomplete-flow.pathToFlowExecutable') || 'flow'
     }
   , deactivate(){
-      console.log('deactivating linter-flow')
+      console.log('deactivating autocomplete-flow')
     }
   , getCompletionProvider(): AutocompleteProvider {
       const provider =
@@ -41,7 +31,7 @@ module.exports =
         , disableForSelector: '.source.js .comment, source.js .keyword'
         , inclusionPriority: 1
         , excludeLowerPriority: true
-        , getSuggestions({editor, bufferPosition, prefix}){
+        , async getSuggestions({editor, bufferPosition, prefix}){
             // return [{text: 'yo'}]
             // file: filePath
             // currentContents: fileContents
@@ -59,25 +49,24 @@ module.exports =
             console.log(file, line, col)
 
             options.stdin = insertAutocompleteToken(currentContents, line, col)
-            return []
-            // try {
-            //   var result = await promisedExec(cmdString, args, options, file)
-            //   if (!result) {
-            //     return []
-            //   }
-            //   if (result.exitCode === 0) {
-            //     var json = JSON.parse(result.stdout)
-            //     // If it is just whitespace and punctuation, ignore it (this keeps us
-            //     // from eating leading dots).
-            //     var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
-            //     var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
-            //     return filter(candidates, replacementPrefix, { key: 'displayText' })
-            //   } else {
-            //     return []
-            //   }
-            // } catch (_) {
-            //   return []
-            // }
+            const [cwd] = atom.project.relativizePath(file)
+            options.cwd = cwd
+
+            try {
+              var result = await promisedExec(cmdString, args, options, currentContents)
+              if (!result) {
+                return []
+              }
+              var json = JSON.parse(result.stdout)
+              // If it is just whitespace and punctuation, ignore it (this keeps us
+              // from eating leading dots).
+              var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
+              var candidates = json.map(item => processAutocompleteItem(replacementPrefix, item))
+              return candidates.filter()
+              return filter(candidates, replacementPrefix, { key: 'displayText' })
+            } catch (_) {
+              return []
+            }
           }
         }
 
