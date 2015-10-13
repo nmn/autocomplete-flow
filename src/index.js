@@ -44,7 +44,7 @@ module.exports =
             const line = cursor.getBufferRow()
             const col = cursor.getBufferColumn()
 
-            let options = {a: 1}
+            let options = {}
             const args = ['autocomplete', '--json', file]
 
             console.log(file, line, col)

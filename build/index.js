@@ -55,7 +55,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
               cursor = editor.getLastCursor();
               line = cursor.getBufferRow();
               col = cursor.getBufferColumn();
-              options = { a: 1 };
+              options = {};
               args = ['autocomplete', '--json', file];
 
               console.log(file, line, col);
