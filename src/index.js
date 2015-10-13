@@ -44,7 +44,7 @@ module.exports =
             const line = cursor.getBufferRow()
             const col = cursor.getBufferColumn()
 
-            let options = {}
+            let options = {a: 1}
             const args = ['autocomplete', '--json', file]
 
             console.log(file, line, col)
@@ -61,8 +61,8 @@ module.exports =
               // from eating leading dots).
               var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
               var candidates = result.map(item => processAutocompleteItem(replacementPrefix, item))
-              return candidates
-              // return filter(candidates, replacementPrefix, { key: 'displayText' })
+              // return candidates
+              return filter(candidates, replacementPrefix, { key: 'displayText' })
             } catch (_) {
               return []
             }

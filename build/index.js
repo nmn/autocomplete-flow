@@ -55,7 +55,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
               cursor = editor.getLastCursor();
               line = cursor.getBufferRow();
               col = cursor.getBufferColumn();
-              options = {};
+              options = { a: 1 };
               args = ['autocomplete', '--json', file];
 
               console.log(file, line, col);
@@ -85,7 +85,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
               candidates = result.map(function (item) {
                 return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
               });
-              return context$2$0.abrupt('return', candidates);
+              return context$2$0.abrupt('return', (0, _fuzzaldrin.filter)(candidates, replacementPrefix, { key: 'displayText' }));
 
             case 23:
               context$2$0.prev = 23;
@@ -112,4 +112,4 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
 // If it is just whitespace and punctuation, ignore it (this keeps us
 // from eating leading dots).
 
-// return filter(candidates, replacementPrefix, { key: 'displayText' })
+// return candidates
