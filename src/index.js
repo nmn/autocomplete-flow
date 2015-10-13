@@ -3,11 +3,13 @@
 import path from 'path'
 // import atom from 'atom'
 import {spawn} from 'child_process'
+import 'regenerator/runtime'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
 import {filter} from 'fuzzaldrin'
 import type {AutocompleteProvider} from './types'
 
 let cmdString = 'flow'
+cmd
 
 module.exports =
   { config:

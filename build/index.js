@@ -14,11 +14,14 @@ var _path2 = _interopRequireDefault(_path);
 
 var _child_process = require('child_process');
 
+require('regenerator/runtime');
+
 var _helpers = require('./helpers');
 
 var _fuzzaldrin = require('fuzzaldrin');
 
 var cmdString = 'flow';
+cmd;
 
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
       'default': 'flow'
