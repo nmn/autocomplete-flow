@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-flow",
   "version": "1.0.0",
-  "description": "flow powered autocomplete magic for javascript",
+  "description": "flow powered javascript autocomplete provider for atom",
   "activationCommands": [],
   "main": "./build/index.js",
   "scripts": {
