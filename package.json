@@ -32,11 +32,21 @@
     }
   },
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel": "^6.5.1",
+    "babel-cli": "^6.5.1",
     "babel-eslint": "^4.1.3",
+    "babel-plugin-syntax-async-functions": "^6.5.0",
+    "babel-plugin-transform-async-functions": "^6.5.0",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-plugin-transform-flow-strip-types": "^6.5.0",
+    "babel-plugin-transform-object-rest-spread": "^6.5.0",
+    "babel-plugin-transform-runtime": "^6.5.0",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-runtime": "^6.5.0",
     "eslint": "^1.6.0"
   },
   "dependencies": {
+    "atom-linter": "^4.4.0",
     "fuzzaldrin": "^2.1.0",
     "regenerator": "^0.8.41"
   }

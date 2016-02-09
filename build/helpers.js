@@ -1,16 +1,24 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends2 = require('babel-runtime/helpers/extends');
+
+var _extends3 = _interopRequireDefault(_extends2);
 
 exports.insertAutocompleteToken = insertAutocompleteToken;
 exports.promisedExec = promisedExec;
 exports.processAutocompleteItem = processAutocompleteItem;
 
 var _child_process = require('child_process');
+
+var _child_process2 = _interopRequireDefault(_child_process);
+
+var _atomLinter = require('atom-linter');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function insertAutocompleteToken(contents, line, col) {
   var lines = contents.split('\n');
@@ -21,30 +29,9 @@ function insertAutocompleteToken(contents, line, col) {
 }
 
 function promisedExec(cmdString, args, options, file) {
-  return new Promise(function (resolve, reject) {
-    var command = (0, _child_process.spawn)(cmdString, args, options);
-
-    var data = '',
-        errors = '';
-    command.stdout.on('data', function (d) {
-      data += d;
-    });
-    command.stderr.on('data', function (d) {
-      errors += d;
-    });
-    command.on('close', function (err) {
-      if (err) {
-        reject(errors);
-      } else if (!data || errors) {
-        reject(errors);
-      } else {
-        data = JSON.parse(data.substr(data));
-        resolve(data);
-      }
-    });
-
-    command.stdin.write(file);
-    command.stdin.end();
+  options.stdin = file;
+  return (0, _atomLinter.exec)(cmdString, args, options).then(JSON.parse).then(function (obj) {
+    return Array.isArray(obj) ? obj : obj.result;
   });
 }
 
@@ -63,13 +50,13 @@ function processAutocompleteItem(replacementPrefix, flowItem) {
     var rightParamStrings = funcDetails['params'].map(function (param) {
       return param['name'] + ': ' + param['type'];
     });
-    result = _extends({}, result, { leftLabel: funcDetails['return_type'],
+    result = (0, _extends3.default)({}, result, { leftLabel: funcDetails['return_type'],
       rightLabel: '(' + rightParamStrings.join(', ') + ')',
       snippet: flowItem['name'] + '(' + snippetParamStrings.join(', ') + ')',
       type: 'function'
     });
   } else {
-    result = _extends({}, result, { rightLabel: flowItem['type'],
+    result = (0, _extends3.default)({}, result, { rightLabel: flowItem['type'],
       text: flowItem['name']
     });
   }

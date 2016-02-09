@@ -1,29 +1,36 @@
-
-/* global atom */
 'use strict';
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _typeof2 = require('babel-runtime/helpers/typeof');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
-// import atom from 'atom'
-
 var _child_process = require('child_process');
-
-require('regenerator/runtime');
 
 var _helpers = require('./helpers');
 
 var _fuzzaldrin = require('fuzzaldrin');
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* global atom */
+
+
 var cmdString = 'flow';
 
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
-      'default': 'flow'
+      default: 'flow'
     }
   },
   activate: function activate() {
@@ -41,75 +48,110 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
       inclusionPriority: 1,
       excludeLowerPriority: true,
       getSuggestions: function getSuggestions(_ref) {
+        var _this = this;
+
         var editor = _ref.editor;
         var bufferPosition = _ref.bufferPosition;
         var prefix = _ref.prefix;
+        return (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
+          var file, currentContents, cursor, line, col, options, args, _ret;
 
-        var file, currentContents, cursor, line, col, options, args, _atom$project$relativizePath, _atom$project$relativizePath2, cwd, result, replacementPrefix, candidates;
+          return _regenerator2.default.wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  // return [{text: 'yo'}]
+                  // file: filePath
+                  // currentContents: fileContents
+                  // line: number, column: number
 
-        return regeneratorRuntime.async(function getSuggestions$(context$2$0) {
-          while (1) switch (context$2$0.prev = context$2$0.next) {
-            case 0:
-              file = editor.getPath();
-              currentContents = editor.getText();
-              cursor = editor.getLastCursor();
-              line = cursor.getBufferRow();
-              col = cursor.getBufferColumn();
-              options = {};
-              args = ['autocomplete', '--json', file];
+                  file = editor.getPath();
+                  currentContents = editor.getText();
+                  cursor = editor.getLastCursor();
+                  line = cursor.getBufferRow();
+                  col = cursor.getBufferColumn();
+                  options = {};
+                  args = ['autocomplete', '--json', file];
 
-              console.log(file, line, col);
+                  // const [cwd] = atom.project.relativizePath(file)
 
-              _atom$project$relativizePath = atom.project.relativizePath(file);
-              _atom$project$relativizePath2 = _slicedToArray(_atom$project$relativizePath, 1);
-              cwd = _atom$project$relativizePath2[0];
+                  options.cwd = _path2.default.dirname(file); //cwd
 
-              options.cwd = cwd;
+                  _context2.prev = 8;
+                  return _context2.delegateYield(_regenerator2.default.mark(function _callee() {
+                    var stringWithACToken, result, replacementPrefix, candidates;
+                    return _regenerator2.default.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            stringWithACToken = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
+                            _context.next = 3;
+                            return (0, _helpers.promisedExec)(cmdString, args, options, stringWithACToken);
 
-              context$2$0.prev = 12;
-              context$2$0.next = 15;
-              return regeneratorRuntime.awrap((0, _helpers.promisedExec)(cmdString, args, options, (0, _helpers.insertAutocompleteToken)(currentContents, line, col)));
+                          case 3:
+                            result = _context.sent;
 
-            case 15:
-              result = context$2$0.sent;
+                            if (!(!result || !result.length)) {
+                              _context.next = 6;
+                              break;
+                            }
 
-              if (!(!result || !result.length)) {
-                context$2$0.next = 18;
-                break;
+                            return _context.abrupt('return', {
+                              v: []
+                            });
+
+                          case 6:
+                            // If it is just whitespace and punctuation, ignore it (this keeps us
+                            // from eating leading dots).
+                            replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix;
+                            candidates = result.map(function (item) {
+                              return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
+                            });
+                            // return candidates
+
+                            return _context.abrupt('return', {
+                              v: (0, _fuzzaldrin.filter)(candidates, replacementPrefix, { key: 'displayText' })
+                            });
+
+                          case 9:
+                          case 'end':
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee, _this);
+                  })(), 't0', 10);
+
+                case 10:
+                  _ret = _context2.t0;
+
+                  if (!((typeof _ret === 'undefined' ? 'undefined' : (0, _typeof3.default)(_ret)) === "object")) {
+                    _context2.next = 13;
+                    break;
+                  }
+
+                  return _context2.abrupt('return', _ret.v);
+
+                case 13:
+                  _context2.next = 19;
+                  break;
+
+                case 15:
+                  _context2.prev = 15;
+                  _context2.t1 = _context2['catch'](8);
+
+                  console.log('[autocomplete-flow] ERROR:', _context2.t1);
+                  return _context2.abrupt('return', []);
+
+                case 19:
+                case 'end':
+                  return _context2.stop();
               }
-
-              return context$2$0.abrupt('return', []);
-
-            case 18:
-              replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix;
-              candidates = result.map(function (item) {
-                return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
-              });
-              return context$2$0.abrupt('return', (0, _fuzzaldrin.filter)(candidates, replacementPrefix, { key: 'displayText' }));
-
-            case 23:
-              context$2$0.prev = 23;
-              context$2$0.t0 = context$2$0['catch'](12);
-              return context$2$0.abrupt('return', []);
-
-            case 26:
-            case 'end':
-              return context$2$0.stop();
-          }
-        }, null, this, [[12, 23]]);
+            }
+          }, _callee2, _this, [[8, 15]]);
+        }))();
       }
     };
 
     return provider;
   }
 };
-
-// return [{text: 'yo'}]
-// file: filePath
-// currentContents: fileContents
-// line: number, column: number
-
-// If it is just whitespace and punctuation, ignore it (this keeps us
-// from eating leading dots).
-
-// return candidates

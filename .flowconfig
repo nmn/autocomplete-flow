@@ -1,7 +1,12 @@
 [ignore]
+.*/declarations/.*
+.*/spec/.*
 
 [include]
 
 [libs]
+.*/declarations/modules\.js
 
 [options]
+unsafe.enable_getters_and_setters=true
+esproposal.decorators=ignore

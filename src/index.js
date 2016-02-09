@@ -1,9 +1,7 @@
 /* @flow */
 /* global atom */
 import path from 'path'
-// import atom from 'atom'
 import {spawn} from 'child_process'
-import 'regenerator/runtime'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
 import {filter} from 'fuzzaldrin'
 import type {AutocompleteProvider} from './types'
@@ -47,23 +45,23 @@ module.exports =
             let options = {}
             const args = ['autocomplete', '--json', file]
 
-            console.log(file, line, col)
-
-            const [cwd] = atom.project.relativizePath(file)
-            options.cwd = cwd
+            // const [cwd] = atom.project.relativizePath(file)
+            options.cwd = path.dirname(file) //cwd
 
             try {
-              var result = await promisedExec(cmdString, args, options, insertAutocompleteToken(currentContents, line, col))
+              const stringWithACToken = insertAutocompleteToken(currentContents, line, col)
+              const result = await promisedExec(cmdString, args, options, stringWithACToken)
               if (!result || !result.length) {
                 return []
               }
               // If it is just whitespace and punctuation, ignore it (this keeps us
               // from eating leading dots).
-              var replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
-              var candidates = result.map(item => processAutocompleteItem(replacementPrefix, item))
+              const replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
+              const candidates = result.map(item => processAutocompleteItem(replacementPrefix, item))
               // return candidates
               return filter(candidates, replacementPrefix, { key: 'displayText' })
-            } catch (_) {
+            } catch (e) {
+              console.log('[autocomplete-flow] ERROR:', e)
               return []
             }
           }
