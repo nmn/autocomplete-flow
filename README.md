@@ -1,4 +1,4 @@
-# linter-flow
+# autocomplete-flow
 
 An autocomplete provider based on flow for awesome javascript development experience in Atom.
 
