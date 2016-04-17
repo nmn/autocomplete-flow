@@ -1,11 +1,12 @@
 [ignore]
-.*/declarations/.*
 .*/spec/.*
+.*/node_modules/babel.*
+.*/node_modules/yargs.*
 
 [include]
 
 [libs]
-.*/declarations/modules\.js
+./declarations/modules.js
 
 [options]
 unsafe.enable_getters_and_setters=true

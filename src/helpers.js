@@ -11,10 +11,23 @@ export function insertAutocompleteToken(contents: string, line: number, col: num
 }
 
 export function promisedExec(cmdString: string, args: Array<string>, options: Object, file: string): Promise<Object> {
-  options.stdin = file
-  return exec(cmdString, args, options)
+  return exec(cmdString, args, Object.assign({}, options, {stdin: file}))
     .then(JSON.parse)
     .then(obj => Array.isArray(obj) ? obj : obj.result)
+    .catch((error: string | Object) => {
+      const errorM: string = String(error).toLowerCase()
+      if ( errorM.includes('rechecking')
+        || errorM.includes('launching')
+        || errorM.includes('processing')
+        || errorM.includes('starting')
+        || errorM.includes('spawned')
+        || errorM.includes('logs')
+        || errorM.includes('initializing')
+      ) {
+        return []
+      }
+      throw error
+    })
 }
 
 export function processAutocompleteItem(replacementPrefix: string, flowItem: Object): Object {

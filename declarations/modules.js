@@ -14,4 +14,12 @@ declare class Project {
 declare var atom: {
   project: Project;
   config: Config;
+  inDevMode(): boolean;
+  notifications: any;
+}
+
+declare module 'atom' {
+  declare var Range: any;
+  declare var CompositeDisposable: any;
+  declare var config: Config;
 }

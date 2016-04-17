@@ -23,5 +23,8 @@
     "radix": 2,
     "brace-style": 2,
     "dot-location": [2, "property"]
+  },
+  "globals": {
+    "atom": false
   }
 }

@@ -1,12 +1,11 @@
 /* @flow */
-/* global atom */
 import path from 'path'
 import {spawn} from 'child_process'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
 import {filter} from 'fuzzaldrin'
+import { CompositeDisposable } from 'atom'
+import helpers from 'atom-linter'
 import type {AutocompleteProvider} from './types'
-
-let cmdString = 'flow'
 
 module.exports =
   { config:
@@ -19,10 +18,22 @@ module.exports =
       console.log('activating autocomplete-flow')
 
       // getting custom value
-      cmdString = atom.config.get('autocomplete-flow.pathToFlowExecutable') || 'flow'
+      this.lastConfigError = {}
+      this.subscriptions = new CompositeDisposable()
+      this.cmdString = 'flow'
+      this.subscriptions.add(atom.config.observe('autocomplete-flow.pathToFlowExecutable', (pathToFlow) => {
+        this.cmdString = pathToFlow || 'flow'
+      }))
+      if (atom.inDevMode()) {
+        console.log('activating... autocomplete-flow')
+      }
     }
   , deactivate(){
-      console.log('deactivating autocomplete-flow')
+      if (atom.inDevMode()) {
+        console.log('deactivating... autocomplete-flow')
+      }
+      helpers.exec(this.pathToFlow, ['stop'], {}).catch(() => null)
+      this.subscriptions.dispose()
     }
   , getCompletionProvider(): AutocompleteProvider {
       const provider =
@@ -31,16 +42,26 @@ module.exports =
         , inclusionPriority: 1
         , excludeLowerPriority: true
         , async getSuggestions({editor, bufferPosition, prefix}){
-            // return [{text: 'yo'}]
-            // file: filePath
-            // currentContents: fileContents
-            // line: number, column: number
-
             const file = editor.getPath()
             const currentContents = editor.getText()
             const cursor = editor.getLastCursor()
             const line = cursor.getBufferRow()
             const col = cursor.getBufferColumn()
+
+            const flowConfig = helpers.find(file, '.flowconfig')
+            if (!flowConfig) {
+              if (!this.lastConfigError[file] ||
+                  this.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
+                atom.notifications.addWarning(
+                '[Autocomplete-Flow] Missing .flowconfig file.'
+                , { detail: 'To get started with Flow, run `flow init`.'
+                  , dismissable: true,
+                  }
+                )
+                this.lastConfigError[file] = Date.now()
+              }
+              return []
+            }
 
             let options = {}
             const args = ['autocomplete', '--json', file]
@@ -50,7 +71,7 @@ module.exports =
 
             try {
               const stringWithACToken = insertAutocompleteToken(currentContents, line, col)
-              const result = await promisedExec(cmdString, args, options, stringWithACToken)
+              const result = await promisedExec(this.cmdString, args, options, stringWithACToken)
               if (!result || !result.length) {
                 return []
               }

@@ -22,25 +22,42 @@ var _helpers = require('./helpers');
 
 var _fuzzaldrin = require('fuzzaldrin');
 
+var _atom = require('atom');
+
+var _atomLinter = require('atom-linter');
+
+var _atomLinter2 = _interopRequireDefault(_atomLinter);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* global atom */
-
-
-var cmdString = 'flow';
 
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
       default: 'flow'
     }
   },
   activate: function activate() {
+    var _this = this;
+
     console.log('activating autocomplete-flow');
 
     // getting custom value
-    cmdString = atom.config.get('autocomplete-flow.pathToFlowExecutable') || 'flow';
+    this.lastConfigError = {};
+    this.subscriptions = new _atom.CompositeDisposable();
+    this.cmdString = 'flow';
+    this.subscriptions.add(atom.config.observe('autocomplete-flow.pathToFlowExecutable', function (pathToFlow) {
+      _this.cmdString = pathToFlow || 'flow';
+    }));
+    if (atom.inDevMode()) {
+      console.log('activating... autocomplete-flow');
+    }
   },
   deactivate: function deactivate() {
-    console.log('deactivating autocomplete-flow');
+    if (atom.inDevMode()) {
+      console.log('deactivating... autocomplete-flow');
+    }
+    _atomLinter2.default.exec(this.pathToFlow, ['stop'], {}).catch(function () {
+      return null;
+    });
+    this.subscriptions.dispose();
   },
   getCompletionProvider: function getCompletionProvider() {
     var provider = { selector: '.source.js, .source.js.jsx, .source.jsx',
@@ -48,28 +65,39 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
       inclusionPriority: 1,
       excludeLowerPriority: true,
       getSuggestions: function getSuggestions(_ref) {
-        var _this = this;
+        var _this2 = this;
 
         var editor = _ref.editor;
         var bufferPosition = _ref.bufferPosition;
         var prefix = _ref.prefix;
         return (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
-          var file, currentContents, cursor, line, col, options, args, _ret;
+          var file, currentContents, cursor, line, col, flowConfig, options, args, _ret;
 
           return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
-                  // return [{text: 'yo'}]
-                  // file: filePath
-                  // currentContents: fileContents
-                  // line: number, column: number
-
                   file = editor.getPath();
                   currentContents = editor.getText();
                   cursor = editor.getLastCursor();
                   line = cursor.getBufferRow();
                   col = cursor.getBufferColumn();
+                  flowConfig = _atomLinter2.default.find(file, '.flowconfig');
+
+                  if (flowConfig) {
+                    _context2.next = 9;
+                    break;
+                  }
+
+                  if (!_this2.lastConfigError[file] || _this2.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
+                    atom.notifications.addWarning('[Autocomplete-Flow] Missing .flowconfig file.', { detail: 'To get started with Flow, run `flow init`.',
+                      dismissable: true
+                    });
+                    _this2.lastConfigError[file] = Date.now();
+                  }
+                  return _context2.abrupt('return', []);
+
+                case 9:
                   options = {};
                   args = ['autocomplete', '--json', file];
 
@@ -77,7 +105,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
 
                   options.cwd = _path2.default.dirname(file); //cwd
 
-                  _context2.prev = 8;
+                  _context2.prev = 12;
                   return _context2.delegateYield(_regenerator2.default.mark(function _callee() {
                     var stringWithACToken, result, replacementPrefix, candidates;
                     return _regenerator2.default.wrap(function _callee$(_context) {
@@ -86,7 +114,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                           case 0:
                             stringWithACToken = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
                             _context.next = 3;
-                            return (0, _helpers.promisedExec)(cmdString, args, options, stringWithACToken);
+                            return (0, _helpers.promisedExec)(_this2.cmdString, args, options, stringWithACToken);
 
                           case 3:
                             result = _context.sent;
@@ -118,36 +146,36 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                             return _context.stop();
                         }
                       }
-                    }, _callee, _this);
-                  })(), 't0', 10);
+                    }, _callee, _this2);
+                  })(), 't0', 14);
 
-                case 10:
+                case 14:
                   _ret = _context2.t0;
 
                   if (!((typeof _ret === 'undefined' ? 'undefined' : (0, _typeof3.default)(_ret)) === "object")) {
-                    _context2.next = 13;
+                    _context2.next = 17;
                     break;
                   }
 
                   return _context2.abrupt('return', _ret.v);
 
-                case 13:
-                  _context2.next = 19;
+                case 17:
+                  _context2.next = 23;
                   break;
 
-                case 15:
-                  _context2.prev = 15;
-                  _context2.t1 = _context2['catch'](8);
+                case 19:
+                  _context2.prev = 19;
+                  _context2.t1 = _context2['catch'](12);
 
                   console.log('[autocomplete-flow] ERROR:', _context2.t1);
                   return _context2.abrupt('return', []);
 
-                case 19:
+                case 23:
                 case 'end':
                   return _context2.stop();
               }
             }
-          }, _callee2, _this, [[8, 15]]);
+          }, _callee2, _this2, [[12, 19]]);
         }))();
       }
     };
