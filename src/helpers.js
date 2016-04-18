@@ -14,20 +14,6 @@ export function promisedExec(cmdString: string, args: Array<string>, options: Ob
   return exec(cmdString, args, Object.assign({}, options, {stdin: file}))
     .then(JSON.parse)
     .then(obj => Array.isArray(obj) ? obj : obj.result)
-    .catch((error: string | Object) => {
-      const errorM: string = String(error).toLowerCase()
-      if ( errorM.includes('rechecking')
-        || errorM.includes('launching')
-        || errorM.includes('processing')
-        || errorM.includes('starting')
-        || errorM.includes('spawned')
-        || errorM.includes('logs')
-        || errorM.includes('initializing')
-      ) {
-        return []
-      }
-      throw error
-    })
 }
 
 export function processAutocompleteItem(replacementPrefix: string, flowItem: Object): Object {

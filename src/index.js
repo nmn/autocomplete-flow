@@ -72,6 +72,7 @@ module.exports =
             try {
               const stringWithACToken = insertAutocompleteToken(currentContents, line, col)
               const result = await promisedExec(this.cmdString, args, options, stringWithACToken)
+              console.log('result:', result)
               if (!result || !result.length) {
                 return []
               }
@@ -82,6 +83,17 @@ module.exports =
               // return candidates
               return filter(candidates, replacementPrefix, { key: 'displayText' })
             } catch (e) {
+              const errorM: string = String(e).toLowerCase()
+              if ( errorM.includes('rechecking')
+                || errorM.includes('launching')
+                || errorM.includes('processing')
+                || errorM.includes('starting')
+                || errorM.includes('spawned')
+                || errorM.includes('logs')
+                || errorM.includes('initializing')
+              ) {
+                return []
+              }
               console.log('[autocomplete-flow] ERROR:', e)
               return []
             }
