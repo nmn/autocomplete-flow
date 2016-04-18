@@ -35,12 +35,6 @@ function insertAutocompleteToken(contents, line, col) {
 function promisedExec(cmdString, args, options, file) {
   return (0, _atomLinter.exec)(cmdString, args, (0, _assign2.default)({}, options, { stdin: file })).then(JSON.parse).then(function (obj) {
     return Array.isArray(obj) ? obj : obj.result;
-  }).catch(function (error) {
-    var errorM = String(error).toLowerCase();
-    if (errorM.includes('rechecking') || errorM.includes('launching') || errorM.includes('processing') || errorM.includes('starting') || errorM.includes('spawned') || errorM.includes('logs') || errorM.includes('initializing')) {
-      return [];
-    }
-    throw error;
   });
 }
 

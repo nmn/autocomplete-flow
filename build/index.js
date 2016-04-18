@@ -26,8 +26,6 @@ var _atom = require('atom');
 
 var _atomLinter = require('atom-linter');
 
-var _atomLinter2 = _interopRequireDefault(_atomLinter);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 module.exports = { config: { pathToFlowExecutable: { type: 'string',
@@ -54,12 +52,13 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
     if (atom.inDevMode()) {
       console.log('deactivating... autocomplete-flow');
     }
-    _atomLinter2.default.exec(this.pathToFlow, ['stop'], {}).catch(function () {
+    (0, _atomLinter.exec)(this.cmdString, ['stop'], {}).catch(function () {
       return null;
     });
     this.subscriptions.dispose();
   },
   getCompletionProvider: function getCompletionProvider() {
+    var that = this;
     var provider = { selector: '.source.js, .source.js.jsx, .source.jsx',
       disableForSelector: '.source.js .comment, source.js .keyword',
       inclusionPriority: 1,
@@ -71,7 +70,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
         var bufferPosition = _ref.bufferPosition;
         var prefix = _ref.prefix;
         return (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
-          var file, currentContents, cursor, line, col, flowConfig, options, args, _ret;
+          var file, currentContents, cursor, line, col, flowConfig, options, args, _ret, errorM;
 
           return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
@@ -82,18 +81,18 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                   cursor = editor.getLastCursor();
                   line = cursor.getBufferRow();
                   col = cursor.getBufferColumn();
-                  flowConfig = _atomLinter2.default.find(file, '.flowconfig');
+                  flowConfig = (0, _atomLinter.find)(file, '.flowconfig');
 
                   if (flowConfig) {
                     _context2.next = 9;
                     break;
                   }
 
-                  if (!_this2.lastConfigError[file] || _this2.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
+                  if (!that.lastConfigError[file] || that.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
                     atom.notifications.addWarning('[Autocomplete-Flow] Missing .flowconfig file.', { detail: 'To get started with Flow, run `flow init`.',
                       dismissable: true
                     });
-                    _this2.lastConfigError[file] = Date.now();
+                    that.lastConfigError[file] = Date.now();
                   }
                   return _context2.abrupt('return', []);
 
@@ -114,7 +113,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                           case 0:
                             stringWithACToken = (0, _helpers.insertAutocompleteToken)(currentContents, line, col);
                             _context.next = 3;
-                            return (0, _helpers.promisedExec)(_this2.cmdString, args, options, stringWithACToken);
+                            return (0, _helpers.promisedExec)(that.cmdString, args, options, stringWithACToken);
 
                           case 3:
                             result = _context.sent;
@@ -135,6 +134,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                             candidates = result.map(function (item) {
                               return (0, _helpers.processAutocompleteItem)(replacementPrefix, item);
                             });
+
                             // return candidates
 
                             return _context.abrupt('return', {
@@ -160,17 +160,26 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                   return _context2.abrupt('return', _ret.v);
 
                 case 17:
-                  _context2.next = 23;
+                  _context2.next = 26;
                   break;
 
                 case 19:
                   _context2.prev = 19;
                   _context2.t1 = _context2['catch'](12);
+                  errorM = String(_context2.t1).toLowerCase();
 
+                  if (!(errorM.includes('rechecking') || errorM.includes('launching') || errorM.includes('processing') || errorM.includes('starting') || errorM.includes('spawned') || errorM.includes('logs') || errorM.includes('initializing'))) {
+                    _context2.next = 24;
+                    break;
+                  }
+
+                  return _context2.abrupt('return', []);
+
+                case 24:
                   console.log('[autocomplete-flow] ERROR:', _context2.t1);
                   return _context2.abrupt('return', []);
 
-                case 23:
+                case 26:
                 case 'end':
                   return _context2.stop();
               }

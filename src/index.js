@@ -4,7 +4,7 @@ import {spawn} from 'child_process'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
 import {filter} from 'fuzzaldrin'
 import { CompositeDisposable } from 'atom'
-import helpers from 'atom-linter'
+import {exec, find} from 'atom-linter'
 import type {AutocompleteProvider} from './types'
 
 module.exports =
@@ -32,10 +32,11 @@ module.exports =
       if (atom.inDevMode()) {
         console.log('deactivating... autocomplete-flow')
       }
-      helpers.exec(this.pathToFlow, ['stop'], {}).catch(() => null)
+      exec(this.cmdString, ['stop'], {}).catch(() => null)
       this.subscriptions.dispose()
     }
   , getCompletionProvider(): AutocompleteProvider {
+      const that = this
       const provider =
         { selector: '.source.js, .source.js.jsx, .source.jsx'
         , disableForSelector: '.source.js .comment, source.js .keyword'
@@ -48,17 +49,17 @@ module.exports =
             const line = cursor.getBufferRow()
             const col = cursor.getBufferColumn()
 
-            const flowConfig = helpers.find(file, '.flowconfig')
+            const flowConfig = find(file, '.flowconfig')
             if (!flowConfig) {
-              if (!this.lastConfigError[file] ||
-                  this.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
+              if (!that.lastConfigError[file] ||
+                  that.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
                 atom.notifications.addWarning(
                 '[Autocomplete-Flow] Missing .flowconfig file.'
                 , { detail: 'To get started with Flow, run `flow init`.'
                   , dismissable: true,
                   }
                 )
-                this.lastConfigError[file] = Date.now()
+                that.lastConfigError[file] = Date.now()
               }
               return []
             }
@@ -71,8 +72,7 @@ module.exports =
 
             try {
               const stringWithACToken = insertAutocompleteToken(currentContents, line, col)
-              const result = await promisedExec(this.cmdString, args, options, stringWithACToken)
-              console.log('result:', result)
+              const result = await promisedExec(that.cmdString, args, options, stringWithACToken)
               if (!result || !result.length) {
                 return []
               }
@@ -80,6 +80,7 @@ module.exports =
               // from eating leading dots).
               const replacementPrefix = /^[\s.]*$/.test(prefix) ? '' : prefix
               const candidates = result.map(item => processAutocompleteItem(replacementPrefix, item))
+
               // return candidates
               return filter(candidates, replacementPrefix, { key: 'displayText' })
             } catch (e) {
