@@ -76,6 +76,14 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
+                  if (prefix) {
+                    _context2.next = 2;
+                    break;
+                  }
+
+                  return _context2.abrupt('return', []);
+
+                case 2:
                   file = editor.getPath();
                   currentContents = editor.getText();
                   cursor = editor.getLastCursor();
@@ -84,7 +92,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                   flowConfig = (0, _atomLinter.find)(file, '.flowconfig');
 
                   if (flowConfig) {
-                    _context2.next = 9;
+                    _context2.next = 11;
                     break;
                   }
 
@@ -96,7 +104,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                   }
                   return _context2.abrupt('return', []);
 
-                case 9:
+                case 11:
                   options = {};
                   args = ['autocomplete', '--json', file];
 
@@ -104,7 +112,7 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
 
                   options.cwd = _path2.default.dirname(file); //cwd
 
-                  _context2.prev = 12;
+                  _context2.prev = 14;
                   return _context2.delegateYield(_regenerator2.default.mark(function _callee() {
                     var stringWithACToken, result, replacementPrefix, candidates;
                     return _regenerator2.default.wrap(function _callee$(_context) {
@@ -147,44 +155,44 @@ module.exports = { config: { pathToFlowExecutable: { type: 'string',
                         }
                       }
                     }, _callee, _this2);
-                  })(), 't0', 14);
+                  })(), 't0', 16);
 
-                case 14:
+                case 16:
                   _ret = _context2.t0;
 
                   if (!((typeof _ret === 'undefined' ? 'undefined' : (0, _typeof3.default)(_ret)) === "object")) {
-                    _context2.next = 17;
+                    _context2.next = 19;
                     break;
                   }
 
                   return _context2.abrupt('return', _ret.v);
 
-                case 17:
-                  _context2.next = 26;
+                case 19:
+                  _context2.next = 28;
                   break;
 
-                case 19:
-                  _context2.prev = 19;
-                  _context2.t1 = _context2['catch'](12);
+                case 21:
+                  _context2.prev = 21;
+                  _context2.t1 = _context2['catch'](14);
                   errorM = String(_context2.t1).toLowerCase();
 
                   if (!(errorM.includes('rechecking') || errorM.includes('launching') || errorM.includes('processing') || errorM.includes('starting') || errorM.includes('spawned') || errorM.includes('logs') || errorM.includes('initializing'))) {
-                    _context2.next = 24;
+                    _context2.next = 26;
                     break;
                   }
 
                   return _context2.abrupt('return', []);
 
-                case 24:
+                case 26:
                   console.log('[autocomplete-flow] ERROR:', _context2.t1);
                   return _context2.abrupt('return', []);
 
-                case 26:
+                case 28:
                 case 'end':
                   return _context2.stop();
               }
             }
-          }, _callee2, _this2, [[12, 19]]);
+          }, _callee2, _this2, [[14, 21]]);
         }))();
       }
     };

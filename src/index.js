@@ -43,6 +43,9 @@ module.exports =
         , inclusionPriority: 1
         , excludeLowerPriority: true
         , async getSuggestions({editor, bufferPosition, prefix}){
+            if (!prefix) {
+              return []
+            }
             const file = editor.getPath()
             const currentContents = editor.getText()
             const cursor = editor.getLastCursor()
