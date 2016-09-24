@@ -1,5 +1,7 @@
 /* @flow */
 
+'use babel';
+
 export type IPoint = {
 	row: number;
 	column: number;

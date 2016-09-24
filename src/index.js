@@ -1,4 +1,7 @@
 /* @flow */
+
+'use babel';
+
 import path from 'path'
 import {spawn} from 'child_process'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
