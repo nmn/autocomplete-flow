@@ -43,7 +43,7 @@ module.exports =
         { selector: '.source.js, .source.js.jsx, .source.jsx'
         , disableForSelector: '.source.js .comment, source.js .keyword'
         , inclusionPriority: 1
-        , excludeLowerPriority: true
+        , excludeLowerPriority: false
         , async getSuggestions({editor, bufferPosition, prefix}){
             if (!prefix) {
               return []
