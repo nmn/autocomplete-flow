@@ -1,4 +1,7 @@
 /* @flow */
+
+'use babel';
+
 import path from 'path'
 import {spawn} from 'child_process'
 import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './helpers'
@@ -18,7 +21,6 @@ module.exports =
       console.log('activating autocomplete-flow')
 
       // getting custom value
-      this.lastConfigError = {}
       this.subscriptions = new CompositeDisposable()
       this.cmdString = 'flow'
       this.subscriptions.add(atom.config.observe('autocomplete-flow.pathToFlowExecutable', (pathToFlow) => {
@@ -41,7 +43,7 @@ module.exports =
         { selector: '.source.js, .source.js.jsx, .source.jsx'
         , disableForSelector: '.source.js .comment, source.js .keyword'
         , inclusionPriority: 1
-        , excludeLowerPriority: true
+        , excludeLowerPriority: false
         , async getSuggestions({editor, bufferPosition, prefix}){
             if (!prefix) {
               return []
@@ -54,16 +56,6 @@ module.exports =
 
             const flowConfig = find(file, '.flowconfig')
             if (!flowConfig) {
-              if (!that.lastConfigError[file] ||
-                  that.lastConfigError[file] + 5 * 60 * 1000 < Date.now()) {
-                atom.notifications.addWarning(
-                '[Autocomplete-Flow] Missing .flowconfig file.'
-                , { detail: 'To get started with Flow, run `flow init`.'
-                  , dismissable: true,
-                  }
-                )
-                that.lastConfigError[file] = Date.now()
-              }
               return []
             }
 

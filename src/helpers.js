@@ -1,4 +1,7 @@
 /* @flow */
+
+'use babel';
+
 import cp from 'child_process'
 import {exec} from 'atom-linter'
 
