@@ -8,6 +8,7 @@ import {insertAutocompleteToken, promisedExec, processAutocompleteItem} from './
 import {filter} from 'fuzzaldrin'
 import { CompositeDisposable } from 'atom'
 import {exec, find} from 'atom-linter'
+import { sync as which } from 'which'
 import type {AutocompleteProvider} from './types'
 
 module.exports =
@@ -58,16 +59,30 @@ module.exports =
             if (!flowConfig) {
               return []
             }
+            const cwd = path.dirname(flowConfig)
 
-            let options = {}
+            const options = { cwd }
             const args = ['autocomplete', '--json', file]
 
-            // const [cwd] = atom.project.relativizePath(file)
-            options.cwd = path.dirname(file) //cwd
+            let flowBin = that.cmdString
+            if (flowBin == null || flowBin === 'flow') {
+              try {
+                const localFlowBin = path.join(cwd, 'node_modules/.bin/flow')
+                fs.accessSync(localFlowBin, fs.R_OK)
+                flowBin = localFlowBin
+              } catch (e) {
+                try {
+                  which('flow')
+                  flowBin = 'flow'
+                } catch (e) {
+                  return []
+                }
+              }
+            }
 
             try {
               const stringWithACToken = insertAutocompleteToken(currentContents, line, col)
-              const result = await promisedExec(that.cmdString, args, options, stringWithACToken)
+              const result = await promisedExec(flowBin, args, options, stringWithACToken)
               if (!result || !result.length) {
                 return []
               }
